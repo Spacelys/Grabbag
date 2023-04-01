@@ -1,7 +1,7 @@
 {
   "name": "@spacelys/grabbah",
   "version": "0.0.1",
-  "description": "Random asortment of utils and algorithims",
+  "description": "Random assortment of utils, algorithims, and data structures",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
