@@ -1,5 +1,5 @@
 {
-  "name": "@spacelys/grabbah",
+  "name": "@spacelys/grabbag",
   "version": "0.0.1",
   "description": "Random assortment of utils, algorithims, and data structures",
   "main": "dist/index.js",
