@@ -1,0 +1,52 @@
+{
+  "name": "@spacelys/grabbag",
+  "version": "0.0.1",
+  "description": "Random assortment of utils, algorithims, and data structures",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint -c .eslintrc.js --ext .ts './src/**/*.ts'",
+    "examples": "parcel examples/index.html --open",
+    "coverage": "npm run test -- --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Spacelys/Grabbag.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Spacelys/Grabbag/issues"
+  },
+  "homepage": "https://github.com/Spacelys/Grabbag#readme",
+  "devDependencies": {
+    "@babel/core": "7.8.3",
+    "@babel/preset-typescript": "7.8.3",
+    "@babel/types": "7.8.3",
+    "@types/jest": "24.0.25",
+    "@typescript-eslint/eslint-plugin": "4.15.0",
+    "@typescript-eslint/eslint-plugin-tslint": "4.15.0",
+    "@typescript-eslint/parser": "4.15.0",
+    "babel-loader": "8.0.6",
+    "concurrently": "5.0.2",
+    "eslint": "7.20.0",
+    "eslint-plugin-import": "2.22.1",
+    "eslint-plugin-jsdoc": "31.6.1",
+    "eslint-plugin-prefer-arrow": "1.2.3",
+    "file-loader": "5.0.2",
+    "fork-ts-checker-webpack-plugin": "3.1.1",
+    "jest": "28.1.3",
+    "parcel-bundler": "1.3.1",
+    "ts-jest": "^28.0.7",
+    "ts-loader": "6.2.1",
+    "ts-node": "8.6.2",
+    "tsc-watch": "4.1.0",
+    "tslint": "5.20.1",
+    "typescript": "4.7.4"
+  }
+}
