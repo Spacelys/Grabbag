@@ -43,13 +43,11 @@ export const interpolate = (line: Line, t: number): Pos => {
 };
 
 // maxed out at [0, len]
-export const interpolated = (line: Line, distance: number): [Pos, number, number] => {
+export const interpolated = (line: Line, distance: number): [Pos, number] => {
 	const remainder = Math.max(0, distance - line.len);
 	const d = Math.min(Math.max(0, distance), line.len);
 	return [
-		add(line.a, scale(line.unit_d, d)
-		),
-		d,
+		add(line.a, scale(line.unit_d, d)),
 		remainder,
 	];
 };
@@ -87,62 +85,9 @@ export const translate = (line: Line, {dx, dy}: Vector): Line => ({
 	b: { x: line.b.x + dx, y: line.b.y + dy },
 });
 
-// export class Line {
-// 	a: Pos;
-// 	b: Pos;
-// 	len: number;
-// 	d: Vector;
-// 	unit_d: Vector;
-
-// 	constructor(a: Pos, b: Pos, d?: Vector, len?: number, unit_d?: Vector) {
-// 		this.a = a;
-// 		this.b = b;
-// 		this.d = d || distance(a, b);
-// 		this.len = len || magnitude(this.d);
-// 		this.unit_d = unit_d || scale(this.d, 1 / magnitude(this.d));
-// 	}
-
-// 	translate(dx: number, dy: number) {
-// 		const a = add(this.a, { x: dx, y: dy });
-// 		const b = add(this.b, { x: dx, y: dy });
-
-// 		return new Line(a, b, this.d, this.len, this.unit_d);
-// 	}
-// 	// maxed out at [0, 1]
-// 	interpolate(t: number): Pos {
-// 		const val = Math.min(Math.max(0, t), 1);
-// 		return add(this.a, scale(this.d, val));
-// 	}
-
-// 	interpolated(distance: number): [Pos, number, number] {
-// 		const remainder = Math.max(0, distance - this.len);
-// 		const d = Math.min(Math.max(0, distance), this.len);
-// 		return [add(this.a, scale(this.unit_d, d)), d, remainder];
-// 	}
-
-// 	getDfromPosition(pos: Pos) {
-// 		const dVector = distance(this.a, pos);
-// 		return magnitude(dVector);
-// 	}
-
-// 	intersection(line: Line): Pos | undefined {
-// 		const l1xl2 = cross(this.d, line.d);
-
-// 		if (l1xl2 === 0) {
-// 			return undefined;
-// 		} else {
-// 			// else:
-// 			// ac = c - a
-// 			// t1 = ac.cross(cd) / ab_cross_cd
-// 			// t2 = -ab.cross(ac) / ab_cross_cd
-// 			// return a + ab.scaled(t1), t1, t2
-// 			const l1a2a = distance(this.a, line.a);
-// 			const t1 = cross(l1a2a, line.d) / l1xl2;
-// 			const t2 = -cross(this.d, l1a2a) / l1xl2;
-// 			if (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1) {
-// 				return add(this.a, scale(this.d, t1));
-// 			}
-// 		}
-// 		return undefined;
-// 	}
-// }
+export const stem = (line: Line, startD: number, radian: number, len: number): Line => {
+	const newStart = add(line.a, scale(line.unit_d, startD));
+	const v = rotate(line.unit_d, radian);
+	const newEnd = add(newStart, scale(v, len));
+	return createLine(newStart, newEnd);
+};
