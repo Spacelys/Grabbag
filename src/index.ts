@@ -4,6 +4,7 @@ export * from './loader';
 export * as timer from './timer';
 export * as lines from './lines';
 export * as state from './state';
+export * as animation from './animation';
 
 export interface Pos {
 	x: number;
