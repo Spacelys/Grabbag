@@ -1,20 +1,122 @@
-import { Rect } from './index';
+import { Rect } from '../';
 
-export interface AnimationFrame {
-	frame: number;
+export interface AnimationSequence {
+	frameId: number;
 	duration: number;
 }
 export type Frame = Rect;
 
+export interface AnimationInstance {
+	parentId: symbol;
+	sequenceTime: number;
+	sequenceIndex: number;
+	frameIndex: number;
+	factor: number;
+	onFinish?: (remainderMs: number) => void;
+	onLooped?: (remainderMs: number) => void;
+	onFinishCalled: boolean;
+}
+
+export interface AnimationDefinition {
+	id: symbol;
+	frames: Frame[];
+	sequence?: AnimationSequence[];
+	looped?: boolean;
+	totalTime: number;
+}
+
+export const instance = (def: AnimationDefinition): AnimationInstance => ({
+	parentId: def.id,
+	sequenceTime: 0,
+	sequenceIndex: 0,
+	frameIndex: 0,
+	factor: 1,
+	onFinishCalled: false,
+});
+
+export const update = (def: AnimationDefinition, inst: AnimationInstance, dt: number): AnimationInstance => {
+	if (def.id !== inst.parentId) {
+		throw Error('Instance not child of parent definition');
+	}
+
+	const ret: AnimationInstance = {...inst};
+
+	ret.sequenceTime = inst.sequenceTime + dt * inst.factor;
+	if (ret.sequenceTime >= def.totalTime) {
+		const remainder = ret.sequenceTime - def.totalTime;
+		if (def.looped) {
+			if (inst.onLooped) {
+				inst.onLooped(remainder);
+			}
+			ret.sequenceTime = ret.sequenceTime % def.totalTime;
+		} else {
+			if (inst.onFinish && !inst.onFinishCalled) {
+				inst.onFinish(remainder);
+				ret.onFinishCalled = true;
+			}
+		}
+	}
+
+	let cursor = 0;
+	for (let i = 0; i < def.sequence.length; i++) {
+		const s = def.sequence[i];
+		if (inst.sequenceTime < cursor + s.duration) {
+			ret.frameIndex = s.frameId;
+			ret.sequenceIndex = i;
+			break;
+		}
+		cursor += s.duration;
+	}
+	return ret;
+};
+
+export const getFrame = (def: AnimationDefinition, inst: AnimationInstance): Frame => {
+	// only one frame so you are always going to get the same one
+	if (def.frames.length === 1) {
+		return def.frames[0];
+	}
+	if (!def.sequence) {
+		return def.frames[0];
+	}
+
+	return def.frames[inst.frameIndex];
+};
+
+/**
+ * An animation can be defined by just one Frame
+ *
+ * @param frames
+ * @param sequence
+ * @param loop
+ */
+export const create = (
+	frames: Frame[], sequence?: AnimationSequence[], looped?: boolean
+): AnimationDefinition => {
+	let totalTime = 0;
+	if (sequence) {
+		sequence.forEach(s => {
+			totalTime += s.duration;
+		});
+	}
+	return {
+		id: Symbol(),
+		frames,
+		sequence,
+		looped,
+		totalTime,
+	};
+};
+
+// @todo deprecate
 export class Animation {
 	private frames: Frame[];
-	private sequence: AnimationFrame[];
+	private sequence: AnimationSequence[];
 	private looped: boolean;
 	private sequenceTime: number;
 	private sequenceIndex: number;
 	private totalTime: number;
 	private onFinishedCalled: boolean;
-	private onFinish: () => void;
+	private onFinish?: () => void;
 	private frameIndex: number;
 	private factor: number;
 
@@ -25,7 +127,7 @@ export class Animation {
 	 */
 	public constructor({
 		frames, sequence, looped, onFinish, scale = 1,
-	}: { frames: Frame[]; sequence: AnimationFrame[]; looped: boolean; onFinish: () => void; scale?: number }) {
+	}: { frames: Frame[]; sequence: AnimationSequence[]; looped: boolean; onFinish?: () => void; scale?: number }) {
 		this.frames = frames;
 		this.sequence = sequence;
 		this.looped = typeof looped !== 'undefined' ? looped : true;
@@ -72,7 +174,7 @@ export class Animation {
 		}
 
 		this.sequenceTime = sequenceStartTime;
-		this.frameIndex = sequence[this.sequenceIndex].frame;
+		this.frameIndex = sequence[this.sequenceIndex].frameId;
 	}
 
 
@@ -119,7 +221,7 @@ export class Animation {
 		for (let i = 0; i < sequence.length; i++) {
 			const s = sequence[i];
 			if (this.sequenceTime < counter + s.duration) {
-				this.frameIndex = s.frame;
+				this.frameIndex = s.frameId;
 				this.sequenceIndex = i;
 				break;
 			}
