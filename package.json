@@ -1,6 +1,6 @@
 {
   "name": "@spacelys/grabbag",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Random assortment of utils, algorithims, and data structures",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,10 +8,19 @@
     "dist"
   ],
   "exports": {
-	"./lines": "./lines/index.js",
-	"./animation": "./animation/index.js",
-	"./state": "./state/index.js",
-	"./tiles": "./tiles/index.js"
+	".": "./dist/index.js",
+	"./lines": "./dist/lines/index.js",
+	"./animation": "./dist/animation/index.js",
+	"./state": "./dist/state/index.js",
+	"./tiles": "./dist/tiles/index.js"
+  },
+  "typesVersions": {
+	"*": {
+		"lines": ["./dist/lines/index.d.js"],
+		"animation": ["./dist/animation/index.d.js"],
+		"state": ["./dist/state/index.d.js"],
+		"tiles": ["./dist/tiles/index.d.js"]
+	}
   },
   "scripts": {
     "build": "tsc",
