@@ -1,4 +1,4 @@
-import * as grabbag from "../src";
+import * as grabbag from "../../src";
 
 /// Code for Line examples
 const clearCanvas = (canvasId: string) => {
