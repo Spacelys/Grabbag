@@ -20,7 +20,7 @@ const getStatValue = <Attribute>(
 	attribute: Attribute
 ): number => {
 	if (stat.has(attribute)) {
-		const properties = stat.get(attribute)!;
+		const properties = stat.get(attribute);
 		return properties.value;
 	}
 	// @TODO should -1 be the default for a stat that doesn't exist???
@@ -33,7 +33,7 @@ const getStatRange = <Attribute>(
 	attribute: Attribute
 ): [number, number] => {
 	if (stat.has(attribute)) {
-		const properties = stat.get(attribute)!;
+		const properties = stat.get(attribute);
 		return [properties.min, properties.max];
 	}
 	// @TODO should -1 be the default for a stat that doesn't exist???
@@ -73,7 +73,7 @@ const setStatValue = <Attribute>(
 ): Stats<Attribute> => {
 	// we only allow setting a value if that stat currently exist
 	if (stat.has(attribute)) {
-		const property = getStat(stat, attribute)!;
+		const property = getStat(stat, attribute);
 		// the value also has to be bounded, we will not let you set a stat below or above the min / max
 		const newValue = Math.min(Math.max(value, property.min), property.max);
 		stat.set(attribute, { ...property, value: newValue });
@@ -111,7 +111,7 @@ const listFromStats = <Attribute>(
 	const keys = Array.from(stats.keys());
 	const list: StatSingle<Attribute>[] = keys.map((attribute) => ({
 		attribute,
-		...getStat(stats, attribute)!,
+		...getStat(stats, attribute),
 	}));
 	return list;
 };
