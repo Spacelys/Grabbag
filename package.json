@@ -1,6 +1,6 @@
 {
   "name": "@spacelys/grabbag",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "Random assortment of utils, algorithims, and data structures",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,7 +26,8 @@
     "build": "tsc",
     "test": "jest",
     "lint": "eslint -c .eslintrc.js --ext .ts './src/**/*.ts'",
-    "examples": "parcel examples/index.html --open",
+    "examples:main": "parcel examples/main/index.html --open",
+    "examples:state": "parcel examples/state/index.html --open",
     "coverage": "npm run test -- --coverage"
   },
   "repository": {
