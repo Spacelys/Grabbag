@@ -146,7 +146,6 @@ export const array = <S, A extends Action<any, any>, O>(
 }> => {
 	const addSymbol = Symbol();
 	const removeSymbol = Symbol();
-	const targetSymbol = Symbol();
 
 	const add = (s: S[], x: S): S[] => [...s, x];
 	const remove = (s: S[], t: Target): S[] => s.filter((x => !idFunc(x, t)));
