@@ -28,6 +28,13 @@ const getStatValue = <Attribute>(
 	return -1;
 };
 
+/**
+ * Return the stat range of the attribute requested.  If attribute requested doesnt exist, will return [-1, -1]
+ *
+ * @param stat what stats to lookup
+ * @param attribute attribute to search
+ * @returns [rangeMin, rangeMax] : [number, number]
+ */
 const getStatRange = <Attribute>(
 	stat: Stats<Attribute>,
 	attribute: Attribute

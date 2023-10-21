@@ -83,3 +83,17 @@ const Vi = villain.instance({
 console.log(JSON.stringify(Vi, undefined, '\t'));
 const [Vf] = villain.process(Vi, villain.actions.translate(33, 33))
 console.log(JSON.stringify(Vf, undefined, '\t'));
+
+console.log('***** array op output *******');
+
+const characterList = state.array(character, (s, t) => s.hp === t.target);
+const cl = characterList.instance([]);
+const dispatch = state.createStateletDispatcher(cl, characterList, (store) => {
+	console.log('state', store);
+})
+dispatch(characterList.actions.add({block: true, hp: 10, pos: { x: 0, y: 1 }}))
+dispatch(characterList.actions.add({block: true, hp: 11, pos: { x: 0, y: 1 }}))
+dispatch(characterList.actions.add({block: true, hp: 100, pos: { x: 0, y: 1 }}))
+dispatch(characterList.actions.remove({target: 11 }))
+const target1 = state.target(characterList.actions.move(10, 10), { target: 100 });
+dispatch(target1);

@@ -7,7 +7,7 @@ const clearCanvas = (canvasId: string) => {
 	ctx?.clearRect(0, 0, c.width, c.height);
 }
 
-const drawLine = (canvasId: string, line: grabbag.lines.line.Line) => {
+const drawLine = (canvasId: string, line: grabbag.math.II.line.Line) => {
 	const c = document.getElementById(canvasId) as HTMLCanvasElement;
 	const ctx = c.getContext("2d");
 	if (c && ctx) {
@@ -18,7 +18,7 @@ const drawLine = (canvasId: string, line: grabbag.lines.line.Line) => {
 	}
 };
 
-const drawPoint = (canvasId: string, point?: grabbag.Pos) => {
+const drawPoint = (canvasId: string, point?: grabbag.math.Pos) => {
 	const c = document.getElementById(canvasId) as HTMLCanvasElement;
 	const ctx = c.getContext("2d");
 	if (c && ctx && point) {
@@ -30,28 +30,28 @@ const drawPoint = (canvasId: string, point?: grabbag.Pos) => {
 };
 
 const lineExample = () => {
-	const line1 = grabbag.lines.line.createLine({x: 0, y: 0}, {x: 100, y: 100});
-	const line2 = grabbag.lines.line.createLine({x: 0, y: 50}, {x: 100, y: 50});
-	const line3 = grabbag.lines.line.createLine({x: 150, y: 0}, {x: 150, y: 50}); // no intersect
-	const intersection = grabbag.lines.line.lineIntersection(line1, line2);
+	const line1 = grabbag.math.II.line.createLine({x: 0, y: 0}, {x: 100, y: 100});
+	const line2 = grabbag.math.II.line.createLine({x: 0, y: 50}, {x: 100, y: 50});
+	const line3 = grabbag.math.II.line.createLine({x: 150, y: 0}, {x: 150, y: 50}); // no intersect
+	const intersection = grabbag.math.II.line.lineIntersection(line1, line2);
 
 	drawLine("lines", line1);
 	drawLine("lines", line2);
 	drawLine("lines", line3);
 	drawPoint("lines", intersection);
 
-	console.log('Should be intersected', grabbag.lines.line.lineIntersection(line1, line2));
+	console.log('Should be intersected', grabbag.math.II.line.lineIntersection(line1, line2));
 }
 /// Code for path examples
 
 const pathExample = () => {
-	const drawPath = (canvasId: string, path: grabbag.lines.path.Path) => {
+	const drawPath = (canvasId: string, path: grabbag.math.II.path.Path) => {
 		path.lines.forEach(l => {
 			drawLine(canvasId, l);
 		});
 	};
 	
-	const path1 = grabbag.lines.path.creatPath([{x: 10, y: 10}, {x: 50, y: 5}, {x: 100, y: 30}, {x: 200, y: 15}]);
+	const path1 = grabbag.math.II.path.creatPath([{x: 10, y: 10}, {x: 50, y: 5}, {x: 100, y: 30}, {x: 200, y: 15}]);
 	
 	drawPath("path", path1);
 }
@@ -82,7 +82,7 @@ const animationExample = () => {
 	const renderFrame = () => {
 		const frame = grabbag.animation.getFrame(def, anim);
 		clearCanvas("animation");
-		const lineToFrame = grabbag.lines.line.createLine({
+		const lineToFrame = grabbag.math.II.line.createLine({
 			x: frame.pos.x,
 			y: frame.pos.y
 		}, {

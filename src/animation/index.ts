@@ -1,5 +1,4 @@
-import { Rect } from '../';
-
+import { Rect } from 'math';
 export interface AnimationSequence {
 	frameId: number;
 	duration: number;
