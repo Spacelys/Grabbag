@@ -1,5 +1,5 @@
-import { Pos, Size, Rect, createRect, Vector } from './';
-
+import { Pos, Size, Rect, Vector } from './math';
+import { createRect } from './math/2d';
 export interface Camera {
 	fieldOfView: Rect;
 	bounds: Rect;

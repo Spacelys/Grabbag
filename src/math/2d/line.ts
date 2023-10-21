@@ -1,4 +1,5 @@
-import { Pos, add, Vector, direction, cross, scale, magnitude, rotate } from '../.';
+import { Pos, Vector } from '..';
+import { add, direction, cross, scale, magnitude, rotate } from '.';
 
 export interface Line {
 	a: Pos;
@@ -46,12 +47,42 @@ export const interpolate = (line: Line, t: number): Pos => {
 export const interpolated = (line: Line, distance: number): [Pos, number] => {
 	const remainder = Math.max(0, distance - line.len);
 	const d = Math.min(Math.max(0, distance), line.len);
-	return [
-		add(line.a, scale(line.unit_d, d)),
-		remainder,
-	];
+	return [add(line.a, scale(line.unit_d, d)), remainder];
 };
 
+/**
+ * Get position on a line when supplying only the y coordinate.  If y isnt found on the line
+ * will return undefined, otherwise if clamp is passed in, it will clamp to the min/max pos of the line
+ */
+export const getPosWithRespectToY = (
+	line: Line,
+	y: number,
+	clamp?: true
+): Pos | undefined => {
+	const dy = y - line.a.y;
+	const t = dy / line.d.dy;
+	if ((t >= 0 && t <= 1) || clamp) {
+		return interpolate(line, t);
+	}
+	return undefined;
+};
+
+/**
+ * Get position on a line when supplying only the x coordinate.  If x isnt found on the line
+ * will return undefined, otherwise if clamp is passed in, it will clamp to the min/max pos of the line
+ */
+export const getPosWithRespectToX = (
+	line: Line,
+	x: number,
+	clamp?: true
+): Pos | undefined => {
+	const dx = x - line.a.x;
+	const t = dx / line.d.dx;
+	if ((t >= 0 && t <= 1) || clamp) {
+		return interpolate(line, t);
+	}
+	return undefined;
+};
 
 export const rotateLine = (line: Line, radians: number): Line => {
 	const new_unit_d: Vector = rotate(line.unit_d, radians);
@@ -79,13 +110,18 @@ export const getDfromPosition = (line: Line, pos: Pos): number => {
 	return magnitude(dVector);
 };
 
-export const translate = (line: Line, {dx, dy}: Vector): Line => ({
+export const translate = (line: Line, { dx, dy }: Vector): Line => ({
 	...line,
 	a: { x: line.a.x + dx, y: line.a.y + dy },
 	b: { x: line.b.x + dx, y: line.b.y + dy },
 });
 
-export const stem = (line: Line, startD: number, radian: number, len: number): Line => {
+export const stem = (
+	line: Line,
+	startD: number,
+	radian: number,
+	len: number
+): Line => {
 	const newStart = add(line.a, scale(line.unit_d, startD));
 	const v = rotate(line.unit_d, radian);
 	const newEnd = add(newStart, scale(v, len));
