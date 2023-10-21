@@ -1,6 +1,7 @@
 /* eslint-disable arrow-body-style */
 import { Rect3, Pos3, Vector3 } from '..';
 export * as Plane from './plane';
+export * as Line from './line';
 
 export const createRect = (
 	x: number,

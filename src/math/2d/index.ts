@@ -1,9 +1,9 @@
 /* eslint-disable arrow-body-style */
 import { Pos, Rect, Vector, Bound } from '..';
 
-export * as line from './line';
-export * as path from './path';
-export * as collision from './collision';
+export * as Line from './line';
+export * as Path from './path';
+export * as Collision from './collision';
 
 export const createRect = (
 	x: number,
