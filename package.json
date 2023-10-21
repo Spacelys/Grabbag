@@ -1,6 +1,6 @@
 {
   "name": "@spacelys/grabbag",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Random assortment of utils, algorithims, and data structures",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
 	".": "./dist/index.js",
 	"./animation": "./dist/animation/index.js",
 	"./state": "./dist/state/index.js",
-	"./stats": "./dist/stats/index.js",
+	"./stats": "./dist/stats.js",
 	"./math": "./dist/math/index.js",
 	"./math/2d": "./dist/math/2d/index.js",
 	"./math/2d/collision": "./dist/math/2d/collision/index.js",
@@ -23,13 +23,13 @@
 	"*": {
 		"animation": ["./dist/animation/index.d.ts"],
 		"state": ["./dist/state/index.d.ts"],
-		"stats": ["./dist/state/stats.d.ts"],
+		"stats": ["./dist/stats.d.ts"],
 		"math": ["./dist/math/index.d.ts"],
-		"./math/2d": ["./dist/math/2d/index.d.ts"],
-		"./math/2d/collision": ["./dist/math/2d/collision/index.d.ts"],
-		"./math/2d/lines": ["./dist/math/2d/line.d.ts"],
-		"./math/3d": ["./dist/math/3d/index.d.ts"],
-		"./math/3d/lines": ["./dist/math/3d/line.d.ts"]
+		"math/2d": ["./dist/math/2d/index.d.ts"],
+		"math/2d/collision": ["./dist/math/2d/collision/index.d.ts"],
+		"math/2d/lines": ["./dist/math/2d/line.d.ts"],
+		"math/3d": ["./dist/math/3d/index.d.ts"],
+		"math/3d/lines": ["./dist/math/3d/line.d.ts"]
 		}
   },
   "scripts": {
