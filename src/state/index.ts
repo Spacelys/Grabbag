@@ -202,6 +202,12 @@ export const createStateletDispatcher = <State, Actions, Ops>(
 	const actionStack: Actions[] = [];
 
 	store(state); // we automatically call the store with the initial state
+
+	/**
+	 * Dispatch is a way for us to programmatically add an action to the action queue
+	 *
+	 * @param action
+	 */
 	const dispatch = (action: Actions) => {
 		if (interceptor?.onDispatched) {
 			const a = interceptor.onDispatched(state, action);
@@ -212,9 +218,11 @@ export const createStateletDispatcher = <State, Actions, Ops>(
 			actionStack.push(action);
 		}
 		// do not call the store until the current action stack is drained
+		let actionProcessed = false;
 		while (actionStack.length > 0) {
 			const currentAction: Actions = actionStack.shift();
 			if (statelet.acceptor(state, currentAction)) {
+				actionProcessed = true;
 				const [newState, spawnedActions] = statelet.process(state, currentAction);
 				if (interceptor?.onReduced) {
 					interceptor.onReduced(state, currentAction);
@@ -223,7 +231,12 @@ export const createStateletDispatcher = <State, Actions, Ops>(
 				state = newState;
 			}
 		}
-		store(state);
+		if (actionProcessed) {
+			// dont call the store if we didn't actually process any actions
+			// this is the situation where we spawn an action but its not accepted
+			// we would uncessarily call the store again with the same exact state it had before
+			store(state);
+		}
 	};
 	if (interceptor?.emitter) {
 		interceptor.emitter(dispatch);

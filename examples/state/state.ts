@@ -63,6 +63,8 @@ const blockable = state.create<{ block: true }, toggle>({
 	},
 }).withActions({});
 
+console.log('***** combine op *******');
+
 const character = state.combine(blockable, state.combine(hitable, positional));
 const villain = state.combine(
 	character,
@@ -97,3 +99,16 @@ dispatch(characterList.actions.add({block: true, hp: 100, pos: { x: 0, y: 1 }}))
 dispatch(characterList.actions.remove({target: 11 }))
 const target1 = state.target(characterList.actions.move(10, 10), { target: 100 });
 dispatch(target1);
+
+// const characterWithMinions = state.combine(
+// 	character,
+// 	state.embed(characterList, (s) => ({ minions: s}), (w) => w.minions)
+// );
+
+// characterWithMinions.instance({
+// 	block: true,
+// 	hp: 100,
+// 	pos: { x: 1, y: 2},
+// 	minions: [],
+// })
+
