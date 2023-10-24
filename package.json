@@ -1,6 +1,6 @@
 {
   "name": "@spacelys/grabbag",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "description": "Random assortment of utils, algorithims, and data structures",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
