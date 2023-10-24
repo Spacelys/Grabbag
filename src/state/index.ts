@@ -139,21 +139,50 @@ export const combine = <Name, N1, N2, S1, S2, A1, A2, O1, O2>(
 	return statelet;
 };
 
-/*
-state = array(S1, (s: S, id: {focus: number}) => s.x === focus)
-*/
+/**
+ * Similair to combine, but it takes the same name as the first statelet passed in
+ *
+ * @param statelet1
+ * @param statelet2
+ * @returns
+ */
+export const merge = <N1, N2, S1, S2, A1, A2, O1, O2>(
+	statelet1: StateletWithOps<N1, S1, A1, O1>,
+	statelet2: StateletWithOps<N2, S2, A2, O2>
+	// eslint-disable-next-line arrow-body-style
+): StateletWithOps<N1, S1 & S2, A1 | A2, O1 & O2> => {
+	const reducer = combineReducer(statelet1.reducer, statelet2.reducer);
+	const spawner = combineSpawner(statelet1.spawner, statelet2.spawner);
+
+	const statelet = {
+		name: statelet1.name,
+		acceptor: combineAcceptor(statelet1.acceptor, statelet2.acceptor),
+		reducer,
+		spawner,
+		actions: { ...statelet1.actions, ...statelet2.actions },
+		instance: (s: S1 & S2) => s,
+		process: (state: S1 & S2, action: A1 | A2): [S1 & S2, (A1 | A2)[]] => {
+			const newState = reducer(state, action);
+			const spawnedActions = spawner(state, action);
+			return [newState, spawnedActions];
+		},
+	};
+	return statelet;
+};
+
 
 type builtInAdd<S> = Action<symbol, S>;
 type builtInRemove<S> = Action<symbol, S>;
-export const array = <Name, N, S, A extends Action<any, any>, O>(
+export const array = <Name extends string | number | symbol, N, S, A extends Action<any, any>, O>(
 	name: Name,
 	statelet: StateletWithOps<N, S, A, O>,
 	idFunc: (s: S, t: Target) => boolean
 	// eslint-disable-next-line arrow-body-style
-): StateletWithOps<Name, S[], A | builtInAdd<S> | builtInRemove<Target> | TargetAction<A>, O & {
+): StateletWithOps<Name, S[], A | builtInAdd<S> | builtInRemove<Target> | TargetAction<A>, O & Record<Name, {
 	add: (s: S) => builtInAdd<S>;
 	remove: (t: Target) => builtInRemove<Target>;
-}> => {
+}>
+> => {
 	const addSymbol = Symbol();
 	const removeSymbol = Symbol();
 
@@ -174,11 +203,20 @@ export const array = <Name, N, S, A extends Action<any, any>, O>(
 	};
 
 	const spawner = (s: S[], a: A) => s.reduce((acc, e) => [...acc, ...statelet.spawner(e, a)], [] as A[]);
-	const actions = {
+
+	const actions: O & Record<Name, {
+		add: (s: S) => builtInAdd<S>;
+		remove: (t: Target) => builtInRemove<Target>;
+	}> = {
 		...statelet.actions,
-		add: (s: S): builtInAdd<S> => ({ type: addSymbol, payload: s }),
-		remove: (t: Target): builtInRemove<Target> => ({ type: removeSymbol, payload: t }),
-	}
+		[name]: {
+			add: (s: S): builtInAdd<S> => ({ type: addSymbol, payload: s }),
+			remove: (t: Target): builtInRemove<Target> => ({ type: removeSymbol, payload: t }),
+		},
+	} as unknown as O & Record<Name, {
+		add: (s: S) => builtInAdd<S>;
+		remove: (t: Target) => builtInRemove<Target>;
+	}>;
 
 	return {
 		name,
@@ -194,6 +232,22 @@ export const array = <Name, N, S, A extends Action<any, any>, O>(
 		},
 	};
 };
+
+// @TODO create extend functionality
+// export const extend = <BaseName, State, BaseActions, BaseOps>(
+// 	baseStatelet: StateletWithOps<BaseName, State, BaseActions, BaseOps>
+// ): StateletWithOps<BaseName, State, BaseActions, BaseOps> => {
+// 	const extendedAcceptor = combineAcceptor(baseStatelet.acceptor, () => true);
+// 	const extendedReducer = combineReducer(baseStatelet.reducer, (s) => s);
+// 	const extendedSpawner = combineSpawner(baseStatelet.spawner, (s) => []);
+
+// 	return {
+// 		...baseStatelet,
+// 		acceptor: extendedAcceptor,
+// 		reducer: extendedReducer,
+// 		spawner: extendedSpawner,
+// 	}
+// };
 
 export interface Interceptor<S, A> {
 	emitter?: (dispatch: Dispatch<A>) => void;
