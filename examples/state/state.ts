@@ -98,10 +98,11 @@ const cl = characterList.instance([]);
 const dispatch = state.createStateletDispatcher(cl, characterList, (store) => {
 	console.log('state', store);
 })
-dispatch(characterList.actions.add({ block: true, hp: 10, pos: { x: 0, y: 1 } }))
-dispatch(characterList.actions.add({ block: true, hp: 11, pos: { x: 0, y: 1 } }))
-dispatch(characterList.actions.add({ block: true, hp: 100, pos: { x: 0, y: 1 } }))
-dispatch(characterList.actions.remove({ target: 11 }))
+
+dispatch(characterList.actions.characterList.add({ block: true, hp: 10, pos: { x: 0, y: 1 } }))
+dispatch(characterList.actions.characterList.add({ block: true, hp: 11, pos: { x: 0, y: 1 } }))
+dispatch(characterList.actions.characterList.add({ block: true, hp: 100, pos: { x: 0, y: 1 } }))
+dispatch(characterList.actions.characterList.remove({ target: 11 }))
 const target1 = state.target(characterList.actions.positional.move(10, 10), { target: 100 });
 dispatch(target1);
 
