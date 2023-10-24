@@ -9,7 +9,7 @@ export type TargetAction<A extends Action<any, any>> = A & Target;
 
 export const target = <A extends Action<any, any>, T>(a: A, t: T): TargetAction<A> => ({
 	...a,
-	target: t,
+	...t,
 })
 
 export type Reducer<T, A> = (state: T, action: A) => T;
@@ -17,33 +17,36 @@ export type Acceptor<T, A> = (state: T, action: A) => boolean;
 export type Dispatch<A> = (action: A) => void;
 export type Spawner<T, A> = (state: T, action: A) => A[];
 
-export interface BaseStatelet<State, Actions> {
+export interface BaseStatelet<Name, State, Actions> {
+	name: Name;
 	reducer: Reducer<State, Actions>;
 	acceptor: Acceptor<State, Actions>;
 	spawner: Spawner<State, Actions>;
 }
-export interface StateletCreator<State, Actions> extends BaseStatelet<State, Actions> {
-	withActions: <Ops>(actions: Ops) => StateletWithOps<State, Actions, Ops>;
+export interface StateletCreator<Name, State, Actions> extends BaseStatelet<Name, State, Actions> {
+	withActions: <Ops>(actions: Ops) => StateletWithOps<Name, State, Actions, Ops>;
 }
 
-export interface StateletWithOps<State, Actions, Ops> extends BaseStatelet<State, Actions> {
+export interface StateletWithOps<Name, State, Actions, Ops> extends BaseStatelet<Name, State, Actions> {
 	actions: Ops;
 	instance: (state: State) => State;
 	process: (state: State, action: Actions) => [State, Actions[]];
 }
 
-export const create = <State, Actions>(
+export const create = <Name, State, Actions>(
+	name: Name,
 	{ reducer, acceptor = () => true, spawner = () => [] }: {
 		reducer: Reducer<State, Actions>;
 		acceptor?: Acceptor<State, Actions>;
 		spawner?: Spawner<State, Actions>;
-	}): StateletCreator<State, Actions> => {
+	}): StateletCreator<Name, State, Actions> => {
 	const statelet = {
+		name,
 		reducer,
 		acceptor,
 		spawner,
 	};
-	const withActions = <Ops>(actions: Ops): StateletWithOps<State, Actions, Ops> => ({
+	const withActions = <Ops>(actions: Ops): StateletWithOps<Name, State, Actions, Ops> => ({
 		...statelet,
 		actions,
 		instance: (state: State) => state,
@@ -56,17 +59,19 @@ export const create = <State, Actions>(
 	return { ...statelet, withActions };
 };
 
-export const embed = <State, Actions, W, Ops>(
-	statelet: StateletWithOps<State, Actions, Ops>,
+export const embed = <Name, State, Actions, W, Ops>(
+	name: Name,
+	statelet: StateletWithOps<Name, State, Actions, Ops>,
 	wrap: (w: State) => W,
 	unwrap: (u: W) => State,
 	// eslint-disable-next-line arrow-body-style
-): StateletWithOps<W, Actions, Ops> => {
+): StateletWithOps<Name, W, Actions, Ops> => {
 	const acceptor: Acceptor<W, Actions> = (state, action) => statelet.acceptor(unwrap(state), action);
 	const reducer: Reducer<W, Actions> = (state, action) => wrap(statelet.reducer(unwrap(state), action));
 	const spawner: Spawner<W, Actions> = (state, action) => statelet.spawner(unwrap(state), action);
 
 	return {
+		name,
 		acceptor,
 		reducer,
 		spawner,
@@ -107,15 +112,17 @@ const combineSpawner = <S1, S2, A1, A2>(
 	return (state: S1 & S2, action: A1 | A2) => [...spawner1(state, action as A1), ...spawner2(state, action as A2)]
 }
 
-export const combine = <S1, S2, A1, A2, O1, O2>(
-	statelet1: StateletWithOps<S1, A1, O1>,
-	statelet2: StateletWithOps<S2, A2, O2>
+export const combine = <Name, N1, N2, S1, S2, A1, A2, O1, O2>(
+	name: Name,
+	statelet1: StateletWithOps<N1, S1, A1, O1>,
+	statelet2: StateletWithOps<N2, S2, A2, O2>
 	// eslint-disable-next-line arrow-body-style
-): StateletWithOps<S1 & S2, A1 | A2, O1 & O2> => {
+): StateletWithOps<Name, S1 & S2, A1 | A2, O1 & O2> => {
 	const reducer = combineReducer(statelet1.reducer, statelet2.reducer);
 	const spawner = combineSpawner(statelet1.spawner, statelet2.spawner);
 
 	const statelet = {
+		name,
 		acceptor: combineAcceptor(statelet1.acceptor, statelet2.acceptor),
 		reducer,
 		spawner,
@@ -136,11 +143,12 @@ state = array(S1, (s: S, id: {focus: number}) => s.x === focus)
 
 type builtInAdd<S> = Action<symbol, S>;
 type builtInRemove<S> = Action<symbol, S>;
-export const array = <S, A extends Action<any, any>, O>(
-	statelet: StateletWithOps<S, A, O>,
+export const array = <Name, N, S, A extends Action<any, any>, O>(
+	name: Name,
+	statelet: StateletWithOps<N, S, A, O>,
 	idFunc: (s: S, t: Target) => boolean
 	// eslint-disable-next-line arrow-body-style
-): StateletWithOps<S[], A | builtInAdd<S> | builtInRemove<Target> | TargetAction<A>, O & {
+): StateletWithOps<Name, S[], A | builtInAdd<S> | builtInRemove<Target> | TargetAction<A>, O & {
 	add: (s: S) => builtInAdd<S>;
 	remove: (t: Target) => builtInRemove<Target>;
 }> => {
@@ -171,6 +179,7 @@ export const array = <S, A extends Action<any, any>, O>(
 	}
 
 	return {
+		name,
 		acceptor: (s: S[], a: A) => s.reduce((acc, e) => acc && statelet.acceptor(e, a), true),
 		reducer,
 		spawner,
@@ -192,9 +201,9 @@ export interface Interceptor<S, A> {
 
 export type Dispatcher<T, A> = (cb: (state: T) => void) => Dispatch<A>;
 
-export const createStateletDispatcher = <State, Actions, Ops>(
+export const createStateletDispatcher = <Name, State, Actions, Ops>(
 	initState: State,
-	statelet: StateletWithOps<State, Actions, Ops>,
+	statelet: StateletWithOps<Name, State, Actions, Ops>,
 	store: (state: State) => void,
 	interceptor?: Interceptor<State, Actions>,
 ): Dispatch<Actions> => {

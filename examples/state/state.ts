@@ -3,7 +3,8 @@ console.clear();
 
 type translate = { type: 'translate', payload: { dx: number, dy: number } };
 type move = { type: 'move', payload: { x: number, y: number } };
-const positional = state.create<{ pos: { x: number, y: number } }, translate | move>({
+const positional = state.create<"positional", { pos: { x: number, y: number } }, translate | move>("positional",
+{
 	reducer: (s, a) => {
 		if (a.type === "move") {
 			return { pos: {x: a.payload.x, y: a.payload.y } }
@@ -31,7 +32,7 @@ const positional = state.create<{ pos: { x: number, y: number } }, translate | m
 
 type hurt = { type: 'hurt', payload: number };
 type heal = { type: 'heal', payload: number };
-const hitable = state.create<{ hp: number }, hurt | heal>({
+const hitable = state.create<"hitable", { hp: number }, hurt | heal>("hitable", {
 	reducer: (s, a) => {
 		if (a.type === "hurt") {
 			return { hp: s.hp - a.payload }
@@ -55,7 +56,7 @@ const hitable = state.create<{ hp: number }, hurt | heal>({
 });
 
 type toggle = { type: 'toggle', payload: number };
-const blockable = state.create<{ block: true }, toggle>({
+const blockable = state.create<"blockable", { block: true }, toggle>("blockable", {
 	reducer: (s, a) => {
 		return {
 			block: true
@@ -65,10 +66,11 @@ const blockable = state.create<{ block: true }, toggle>({
 
 console.log('***** combine op *******');
 
-const character = state.combine(blockable, state.combine(hitable, positional));
+const character = state.combine("character", blockable, state.combine("squash", hitable, positional));
 const villain = state.combine(
+	"villian",
 	character,
-	state.embed(character, (s) => ({ minion1: s}), (w) => w.minion1)
+	state.embed("minion1", character, (s) => ({ minion1: s}), (w) => w.minion1)
 );
 
 const Vi = villain.instance({
@@ -88,7 +90,7 @@ console.log(JSON.stringify(Vf, undefined, '\t'));
 
 console.log('***** array op output *******');
 
-const characterList = state.array(character, (s, t) => s.hp === t.target);
+const characterList = state.array("characterList", character, (s, t) => s.hp === t.target);
 const cl = characterList.instance([]);
 const dispatch = state.createStateletDispatcher(cl, characterList, (store) => {
 	console.log('state', store);
