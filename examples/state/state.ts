@@ -3,32 +3,34 @@ console.clear();
 
 type translate = { type: 'translate', payload: { dx: number, dy: number } };
 type move = { type: 'move', payload: { x: number, y: number } };
+
 const positional = state.create<"positional", { pos: { x: number, y: number } }, translate | move>("positional",
-{
-	reducer: (s, a) => {
-		if (a.type === "move") {
-			return { pos: {x: a.payload.x, y: a.payload.y } }
-		}
-		if (a.type === "translate") {
-			return { pos: {x: s.pos.x + a.payload.dx, y: s.pos.y + a.payload.dy } }
-		}
-		return {
-			pos: {
-				x: s.pos.x,
-				y: s.pos.y
+	{
+		reducer: (s, a) => {
+			if (a.type === "move") {
+				return { pos: { x: a.payload.x, y: a.payload.y } }
 			}
-		};
-	},
-}).withActions({
-	move: (x: number, y: number): move => ({
-		type: 'move',
-		payload: { x, y }
-	}),
-	translate: (dx: number, dy: number): translate => ({
-		type: 'translate',
-		payload: { dx, dy }
-	})
-});
+			if (a.type === "translate") {
+				return { pos: { x: s.pos.x + a.payload.dx, y: s.pos.y + a.payload.dy } }
+			}
+			return {
+				pos: {
+					x: s.pos.x,
+					y: s.pos.y
+				}
+			};
+		},
+	}).withActions({
+		move: (x: number, y: number): move => ({
+			type: 'move',
+			payload: { x, y }
+		}),
+		translate: (dx: number, dy: number): translate => ({
+			type: 'translate',
+			payload: { dx, dy }
+		})
+	});
+
 
 type hurt = { type: 'hurt', payload: number };
 type heal = { type: 'heal', payload: number };
@@ -55,6 +57,7 @@ const hitable = state.create<"hitable", { hp: number }, hurt | heal>("hitable", 
 	}),
 });
 
+
 type toggle = { type: 'toggle', payload: number };
 const blockable = state.create<"blockable", { block: true }, toggle>("blockable", {
 	reducer: (s, a) => {
@@ -70,22 +73,22 @@ const character = state.combine("character", blockable, state.combine("squash", 
 const villain = state.combine(
 	"villian",
 	character,
-	state.embed("minion1", character, (s) => ({ minion1: s}), (w) => w.minion1)
+	state.embed("minion1", character, (s) => ({ minion1: s }), (w) => w.minion1)
 );
 
 const Vi = villain.instance({
 	block: true,
 	hp: 20,
-	pos: {x: 0, y: 0},
+	pos: { x: 0, y: 0 },
 	minion1: {
 		hp: 20,
-		pos: { x: 0, y: 10},
+		pos: { x: 0, y: 10 },
 		block: true
 	}
 })
 
 console.log(JSON.stringify(Vi, undefined, '\t'));
-const [Vf] = villain.process(Vi, villain.actions.translate(33, 33))
+const [Vf] = villain.process(Vi, villain.actions.positional.translate(33, 33))
 console.log(JSON.stringify(Vf, undefined, '\t'));
 
 console.log('***** array op output *******');
@@ -95,11 +98,11 @@ const cl = characterList.instance([]);
 const dispatch = state.createStateletDispatcher(cl, characterList, (store) => {
 	console.log('state', store);
 })
-dispatch(characterList.actions.add({block: true, hp: 10, pos: { x: 0, y: 1 }}))
-dispatch(characterList.actions.add({block: true, hp: 11, pos: { x: 0, y: 1 }}))
-dispatch(characterList.actions.add({block: true, hp: 100, pos: { x: 0, y: 1 }}))
-dispatch(characterList.actions.remove({target: 11 }))
-const target1 = state.target(characterList.actions.move(10, 10), { target: 100 });
+dispatch(characterList.actions.add({ block: true, hp: 10, pos: { x: 0, y: 1 } }))
+dispatch(characterList.actions.add({ block: true, hp: 11, pos: { x: 0, y: 1 } }))
+dispatch(characterList.actions.add({ block: true, hp: 100, pos: { x: 0, y: 1 } }))
+dispatch(characterList.actions.remove({ target: 11 }))
+const target1 = state.target(characterList.actions.positional.move(10, 10), { target: 100 });
 dispatch(target1);
 
 // const characterWithMinions = state.combine(

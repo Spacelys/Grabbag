@@ -5,9 +5,8 @@ export interface Action<T, P> {
 }
 interface Target { target?: any }
 export type TargetAction<A extends Action<any, any>> = A & Target;
-// export type TargetAction2 = <A extends Action<symbol, { target: any, }>>
 
-export const target = <A extends Action<any, any>, T>(a: A, t: T): TargetAction<A> => ({
+export const target = <T, P>(a: Action<T, P>, t: Target): TargetAction<Action<T, P>> => ({
 	...a,
 	...t,
 })
@@ -23,8 +22,9 @@ export interface BaseStatelet<Name, State, Actions> {
 	acceptor: Acceptor<State, Actions>;
 	spawner: Spawner<State, Actions>;
 }
-export interface StateletCreator<Name, State, Actions> extends BaseStatelet<Name, State, Actions> {
-	withActions: <Ops>(actions: Ops) => StateletWithOps<Name, State, Actions, Ops>;
+export interface StateletCreator<Name extends string | number | symbol, State, Actions>
+	extends BaseStatelet<Name , State, Actions> {
+	withActions: <Ops>(actions: Ops) => StateletWithOps<Name, State, Actions, Record<Name, Ops>>;
 }
 
 export interface StateletWithOps<Name, State, Actions, Ops> extends BaseStatelet<Name, State, Actions> {
@@ -33,7 +33,7 @@ export interface StateletWithOps<Name, State, Actions, Ops> extends BaseStatelet
 	process: (state: State, action: Actions) => [State, Actions[]];
 }
 
-export const create = <Name, State, Actions>(
+export const create = <Name extends string | number | symbol, State, Actions>(
 	name: Name,
 	{ reducer, acceptor = () => true, spawner = () => [] }: {
 		reducer: Reducer<State, Actions>;
@@ -46,9 +46,11 @@ export const create = <Name, State, Actions>(
 		acceptor,
 		spawner,
 	};
-	const withActions = <Ops>(actions: Ops): StateletWithOps<Name, State, Actions, Ops> => ({
+	const withActions = <Ops>(actions: Ops): StateletWithOps<Name, State, Actions, Record<Name, Ops>> => ({
 		...statelet,
-		actions,
+		actions: {
+			[name]: actions,
+		} as unknown as Record<Name, Ops>,
 		instance: (state: State) => state,
 		process: (state: State, action: Actions) => {
 			const newState = statelet.reducer(state, action);
@@ -166,7 +168,7 @@ export const array = <Name, N, S, A extends Action<any, any>, O>(
 			return remove(s, a.payload);
 		}
 		if (a.target) {
-			return s.map((e) => idFunc(e, a.target) ? statelet.reducer(e, a) : e);
+			return s.map((e) => idFunc(e, a) ? statelet.reducer(e, a) : e);
 		}
 		return s.map((e) => statelet.reducer(e, a));
 	};
