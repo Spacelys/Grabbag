@@ -1,4 +1,4 @@
-import { Rect } from 'math';
+import { Rect } from '../../../math';
 import { createRect } from '..';
 import { rectsIntersect, containsRect } from './';
 
