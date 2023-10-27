@@ -1,4 +1,4 @@
-import { Rect } from 'math';
+import { Rect } from '../../../math';
 import { rectBounds } from '..';
 export { QuadTree } from './quadtree';
 
