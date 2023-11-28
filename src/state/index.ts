@@ -171,8 +171,8 @@ export const merge = <N1, N2, S1, S2, A1, A2, O1, O2>(
 };
 
 
-type builtInAdd<S> = Action<symbol, S>;
-type builtInRemove<S> = Action<symbol, S>;
+export type builtInAdd<S> = Action<symbol, S>;
+export type builtInRemove<S> = Action<symbol, S>;
 export const array = <Name extends string | number | symbol, N, S, A extends Action<any, any>, O>(
 	name: Name,
 	statelet: StateletWithOps<N, S, A, O>,
@@ -290,7 +290,7 @@ export const createStateletDispatcher = <Name, State, Actions, Ops>(
 				actionProcessed = true;
 				const [newState, spawnedActions] = statelet.process(state, currentAction);
 				if (interceptor?.onReduced) {
-					interceptor.onReduced(state, currentAction);
+					interceptor.onReduced(newState, currentAction);
 				}
 				actionStack.unshift(...spawnedActions);
 				state = newState;
@@ -336,7 +336,7 @@ export const createDispatcher = <State, Actions>(
 			if (acceptor(state, currentAction)) {
 				const newState = reducer(state, currentAction);
 				if (interceptor?.onReduced) {
-					interceptor.onReduced(state, currentAction);
+					interceptor.onReduced(newState, currentAction);
 				}
 				actionStack.unshift(...spawner(newState, currentAction));
 				state = newState;
